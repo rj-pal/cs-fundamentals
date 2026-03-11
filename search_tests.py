@@ -27,6 +27,8 @@ def string_tests(string, search_function):
     print("String tests passed.")
 
 print(custom_search(sorted_list, 1, LinearSearch))
-exit()
+print(custom_search(sorted_list, 2, LinearSearch))
+print(custom_search(sorted_list, 4, LinearSearch))
+# exit()
 sorted_list_test(sorted_list, expected_result, search_functions)
-# string_tests(string, linear_search.search)
+string_tests(string, LinearSearch)

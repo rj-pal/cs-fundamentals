@@ -6,22 +6,28 @@ def search(iterable, search_item):
         Sorted iterable object (list)
         Element to be searched
     Returns:
-        Index of first occurance of search element, 0 for empty string; otherwise -1
+        Index of first occurance of search element, 0 for empty iterable; otherwise -1
             
     Raises:
         TypeError: If the iterable object is not iterable
+        TypeError: IF the interable object does not support indexing
         TypeError: If the data type of the first item is not the same as the search item
+
+    Only allows for binary search of single string element in larger string
     """
-    if not hasattr(iterable, "__iter__"):
-        raise TypeError(f"'{type(iterable).__name__}' object is not iterable.")
+    # Check for iterability and indexable sequence object
+    if not hasattr(iterable, "__getitem__") or not hasattr(iterable, "__len__"):
+        raise TypeError(f"'{type(iterable).__name__}' object does not support indexing.")
     
-    if iterable:
-        type_of_first_item = type(iterable[0])
-        if not isinstance(search_item, type_of_first_item):
-            raise TypeError(f"Search item type mismatch. Expected type '{type_of_first_item.__name__}', got '{type(search_item).__name__}' instead.")
-        
-    if isinstance(iterable, str):
-        raise TypeError(f"'{type(iterable).__name__}' object is a single string iterable. Iterable should be an array-like object.")
+    # Check for comparability and emptiness
+    if len(iterable) == 0:
+        return -1
+    
+    try:
+        first_item = iterable[0]
+        first_item < search_item
+    except TypeError:
+        raise TypeError (f"'<' not supported between instances of '{type(first_item).__name__}' and '{type(search_item).__name__}'")    
     
     return _binary_search(iterable, search_item, 0, len(iterable) - 1)
 
@@ -39,8 +45,10 @@ def _binary_search(iterable, search_item, left, right):
     Returns:
         Index of first occurance of search element, or -1 if not found.
     """
+    # End of rescursive search without finding the element
     if left > right:
         return -1
+    # Pointer adds the mid-point of distance between ends to the lower bound to avoid number overflow
     pointer = left + ((right - left) // 2)
     if iterable[pointer] == search_item:
         if pointer > 0 and iterable[pointer - 1] == search_item:
@@ -49,7 +57,7 @@ def _binary_search(iterable, search_item, left, right):
     elif iterable[pointer] < search_item:
         return _binary_search(iterable, search_item, pointer + 1, right)
     else:
-        return _binary_search(iterable, search_item, left, pointer - 1)
+        return _iterative_binary_search(iterable, search_item)#, left, pointer - 1)
 
 def _iterative_binary_search(iterable, search_item):
     """
@@ -64,12 +72,13 @@ def _iterative_binary_search(iterable, search_item):
     """
     left = 0
     right = len(iterable) - 1
-    result = -1
+    # result = -1
     while left <= right:
         pointer = left + ((right - left) // 2)
         if iterable[pointer] == search_item:
-            result = pointer 
-            if pointer > 0 and iterable[pointer - 1] == search_item:
+            # result = pointer 
+            ## #Always do they check and move the right pointer closer in case of a long sequence of same item
+            if pointer > 0 and iterable[pointer - 1] == search_item: 
                 right  = pointer - 1
             else:
                 return pointer         
@@ -78,8 +87,16 @@ def _iterative_binary_search(iterable, search_item):
         else:
             right = pointer - 1  
     
-    return result
+    return -1
 
-
+# result = search([], 3)
+result = search("aaabbcc", "d")
+# result = search({1,2,3}, 2)
+# result = search([True, False], 1)
+# result = search(["a","b","c"], 3)
+# result = search([1,2,3], "hello")
+# result = search([1,2,3], 2.0)
+# result = search(2, 2)
+print(result)
 
     
